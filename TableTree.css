@@ -1,0 +1,7 @@
+.tableTree .tt-fold:before{content:'+';}
+.tableTree .tt-unfold:before{content:'-';}
+.tableTree .tt-fold, .tableTree .tt-unfold{cursor:pointer;}
+.tableTree .tt-txt{padding-left:34px;}
+.tableTree span{float:left;width:16px;height:16px;text-align:center;}
+.tableTree input[type=checkbox]{float:left;}
+.tableTree tbody tr{display:none;}
