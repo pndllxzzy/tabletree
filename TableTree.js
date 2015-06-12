@@ -100,11 +100,13 @@ TableTree.prototype = {
 
     	while(i){
 			_data = data[--i];
-			_data.isDone = _data.isParent ? _doneFlag[1] : _doneFlag[2];
+			var hasChildren = !!_data.children.length;
+			_data.isParent = _data.isParent || (this.ajaxURL || hasChildren ? true : false);
+			_data.isDone = _data.isParent ? (hasChildren ? _doneFlag[0] : _doneFlag[1]) : _doneFlag[2];
 			_data.isFold = _data.isParent ? _foldFlag[0] : _foldFlag[2];
 			_data.layer = n;
-    		_dataCache[_data.id] = _data;
-			if(_data.children.length){
+			_dataCache[_data.id] = _data;
+			if(hasChildren){
 				_data.isDone = _doneFlag[0];
 				this.addDataCache.call(this, _data.children, n + 1);
 			}
@@ -149,10 +151,10 @@ TableTree.prototype = {
 				str = '<tr data-id="' + row.id + '"><td style="padding-left:'
 					+ paddingLeft + 'px;"><span class="'
 					+ (row.isParent ? _foldClassTrue : '') + '"></span><div class="'
-					+ _txtClass + '">' + cData[_thKey[0]] + '</div></td>';
+					+ _txtClass + '">' + (cData.hasOwnProperty(_thKey[0]) ? cData[_thKey[0]] : row[_thKey[0]]) + '</div></td>';
 
 			for(var i = 1, cLen = _thKey.length; i < cLen; i++){
-				str += '<td>' + cData[_thKey[i]] + '</td>';
+				str += '<td>' + ((cData.hasOwnProperty(_thKey[i]) ? cData[_thKey[i]] : row[_thKey[i]]) || '') + '</td>';
 			}
 			str += '</tr>';
 			html.push(str);
@@ -195,30 +197,51 @@ TableTree.prototype = {
 	"bindFoldClick" : function(){
 		var _this = this;
 
-		_this.tableEl.on('click', 'span', function(){
-			var id = $(this).parent().parent().attr('data-id'),
+		_this.tableEl.on('click', 'tbody span', function(){
+			var _span = $(this),
+				id = _span.parent().parent().attr('data-id'),
 				obj = _this.dataCache[id],
-				isDone = obj.isDone,
+				_isDone = obj.isDone,
 				_doneFlag = _this.setting.doneFlag;
 
 			_this.selectedId = id;
-			if(isDone === _doneFlag[1] && _this.ajaxURL){
+			if(_isDone === _doneFlag[1] && _this.ajaxURL){
 				$.ajax({
 					type : 'POST',
 					url : _this.ajaxURL,
 					data : {pid : id},
 					dataType : 'JSON',
 					success : function(result){
-						if(result.code === '0'){
+						if(result.code === '0' && result.data.length){
 							_this.ajaxCallback(result.data);
 							obj.isDone = _doneFlag[0];
+						}else{
+							_this.setNotParent(id);
 						}
 					}
 				});
-			}else if(isDone === _doneFlag[0]){
+			}else if(_isDone === _doneFlag[0]){
 				_this.toggle(id);
 			}
 		});
+	},
+
+	/*
+	 *@description 将节点设置为非父节点
+	 *@param pid {string} 指定节点的id
+	 *@return {undefined}
+	 */
+	"setNotParent" : function(id){
+		var row = this.dataCache[id];
+			_setting = this.setting,
+			_foldClass = _setting.foldClass,
+			_doneNone = _setting.doneFlag[2],
+			_foldNone = _setting.foldFlag[2];
+
+		this.tableEl.find('tr[data-id=' + id + '] span').removeClass(_foldClass[0] + ' ' + _foldClass[1]);
+		row.isDone = _doneNone;
+		row.isFold = _foldNone;
+		row.isParent = false;
 	},
 
 	/*
@@ -292,7 +315,7 @@ TableTree.prototype = {
 	/*
 	 *@description 仅移除指定节点(不移除其子节点)
 	 *@param {string} 指定节点的id
-	 *@return {boolean}
+	 *@return {undefined}
 	 */
 	"removeSingle" : function(id){
 		var _dataCache = this.dataCache,
@@ -308,8 +331,11 @@ TableTree.prototype = {
 			childId = _sibling[i].id;
 			if(childId === id){
 				_sibling.splice(i, 1);
-				return true;
+				break;
 			}
+		}
+		if(!_sibling.length){
+			this.setNotParent(_tr.pid);
 		}
 	},
 
@@ -391,10 +417,10 @@ CheckBoxTableTree.prototype = {
 					str = '<tr data-id="' + row.id + '"><td style="padding-left:'
 						+ paddingLeft + 'px;"><span class="'
 						+ (row.isParent ? _foldClassTrue : '') + '"></span><input type="checkbox"/><div class="'
-						+ _txtClass + '">' + cData[_thKey[0]] + '</div></td>';
+						+ _txtClass + '">' + (cData.hasOwnProperty(_thKey[0]) ? cData[_thKey[0]] : row[_thKey[0]]) + '</div></td>';
 
 				for(var i = 1, cLen = _thKey.length; i < cLen; i++){
-					str += '<td>' + cData[_thKey[i]] + '</td>';
+					str += '<td>' + ((cData.hasOwnProperty(_thKey[i]) ? cData[_thKey[i]] : row[_thKey[i]]) || '') + '</td>';
 				}
 				str += '</tr>';
 				html.push(str);
@@ -425,12 +451,14 @@ CheckBoxTableTree.prototype = {
 
 		while(i){
 			_data = data[--i];
-			_data.isDone = _data.isParent ? _doneFlag[1] : _doneFlag[2];
+			var hasChildren = !!_data.children.length;
+			_data.isParent = _data.isParent || (this.ajaxURL || hasChildren ? true : false);
+			_data.isDone = _data.isParent ? (hasChildren ? _doneFlag[0] : _doneFlag[1]) : _doneFlag[2];
 			_data.isFold = _data.isParent ? _foldFlag[0] : _foldFlag[2];
 			_data.isChecked = _checkedFlag[1];
 			_data.layer = n;
 			_dataCache[_data.id] = _data;
-			if(_data.children.length){
+			if(hasChildren){
 				_data.isDone = _doneFlag[0];
 				this.addDataCache.call(this, _data.children, n + 1);
 			}
@@ -444,7 +472,7 @@ CheckBoxTableTree.prototype = {
 	 */
 	"bindCheckboxClick" : function(){
 		var _this = this;
-		_this.tableEl.on('click', 'input[type=checkbox]', function(){
+		_this.tableEl.on('click', 'tbody input[type=checkbox]', function(){
 			var id = $(this).parent().parent().attr('data-id'),
 				flag = this.checked;
 
@@ -465,6 +493,22 @@ CheckBoxTableTree.prototype = {
 
 		_dataCache[id].isChecked = _checkedFlag[flag ? 0 : 1];
 		_tableEl.find('tr[data-id=' + id + ']').find('input[type=checkbox]')[0].checked = flag;
+	},
+
+	/*
+	 *@description [取消]选中所有节点的checkbox
+	 *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
+	 *@return {undefined}
+	 */
+	"selectAll" : function(flag){
+		var _dataCache = this.dataCache,
+			_tableEl = this.tableEl,
+			_checkedFlag = this.setting.checkedFlag[flag ? 0 : 1];
+		for(key in _dataCache){
+			var row = _dataCache[key];
+			_tableEl.find('tr[data-id=' + row.id + ']').find('input[type=checkbox]')[0].checked = flag;
+			row.isChecked = _checkedFlag;
+		}
 	},
 
 	/*
