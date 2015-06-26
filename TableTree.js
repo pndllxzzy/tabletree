@@ -74,7 +74,7 @@ TableTree.prototype = {
 		this.showRoot();
 		this.bindEvent();
 
-        return this;
+		return this;
 	},
 
 	/*
@@ -97,10 +97,10 @@ TableTree.prototype = {
 			_data,
 			_doneFlag = this.setting.doneFlag,
 			_foldFlag = this.setting.foldFlag;
-    	
-    	i = data.length;
 
-    	while(i){
+		i = data.length;
+
+		while(i){
 			_data = data[--i];
 			var hasChildren = !!_data.children.length;
 			_data.isParent = _data.isParent || (this.ajaxURL || hasChildren ? true : false);
@@ -112,7 +112,7 @@ TableTree.prototype = {
 				_data.isDone = _doneFlag[0];
 				this.addDataCache.call(this, _data.children, n + 1);
 			}
-    	}
+		}
 		return this;
 	},
 
@@ -191,7 +191,7 @@ TableTree.prototype = {
 		this.tableEl.find('tr[data-id=' + _selectedId + ']').after(this.getTrHtml.call(this, data));
 		this.toggle(_selectedId);
 
-        return this;
+		return this;
 	},
 
 	/*
@@ -247,7 +247,7 @@ TableTree.prototype = {
 		row.isFold = _foldNone;
 		row.isParent = false;
 
-        return this;
+		return this;
 	},
 
 	/*
@@ -261,7 +261,7 @@ TableTree.prototype = {
 
 		this.fold(pid, isFold);
 
-        return this;
+		return this;
 	},
 
 	/*
@@ -303,7 +303,7 @@ TableTree.prototype = {
 			}
 		}
 
-        return this;
+		return this;
 	},
 
 	/*
@@ -322,7 +322,7 @@ TableTree.prototype = {
 			}
 		}
 
-        return this;
+		return this;
 	},
 
 	/*
@@ -351,7 +351,7 @@ TableTree.prototype = {
 			this.setNotParent(_tr.pid);
 		}
 
-        return this;
+		return this;
 	},
 
 	/*
@@ -370,7 +370,7 @@ TableTree.prototype = {
 			this.remove.call(this, child.id);
 		}
 
-        return this;
+		return this;
 	}
 };
 
@@ -380,14 +380,14 @@ TableTree.prototype = {
  *@param {object} 生成树所需要的参数
  */
 var CheckBoxTableTree = function(option){
-    TableTree.call(this, option);
+	TableTree.call(this, option);
 	this.setting.checkedFlag = ['t', 'f'];
 };
 
 CheckBoxTableTree.pt = CheckBoxTableTree.prototype = function(o){
-    function F(){}
-    F.prototype = o;
-    return new F();
+	function F(){}
+	F.prototype = o;
+	return new F();
 }(TableTree.prototype);
 
 CheckBoxTableTree.pt.constructor = CheckBoxTableTree;
@@ -501,7 +501,7 @@ CheckBoxTableTree.pt.selectSingle = function(id, flag){
 	_dataCache[id].isChecked = _checkedFlag[flag ? 0 : 1];
 	_tableEl.find('tr[data-id=' + id + ']').find('input[type=checkbox]')[0].checked = flag;
 
-    return this;
+	return this;
 };
 
 /*
@@ -519,7 +519,7 @@ CheckBoxTableTree.pt.selectAll = function(flag){
 		row.isChecked = _checkedFlag;
 	}
 
-    return this;
+	return this;
 };
 
 /*
@@ -532,7 +532,7 @@ CheckBoxTableTree.pt.select = function(id, flag){
 	this.selectParent(id, flag);
 	this.selectChildren(id, flag);
 
-    return this;
+	return this;
 };
 
 /*
@@ -561,7 +561,7 @@ CheckBoxTableTree.pt.selectParent = function(id, flag){
 		this.selectParent.call(this, _parent.id, flag);
 	}
 
-    return this;
+	return this;
 };
 
 /*
@@ -581,7 +581,7 @@ CheckBoxTableTree.pt.selectChildren = function(id, flag){
 		row.children.length && this.selectChildren.call(this, row.id, flag);
 	}
 
-    return this;
+	return this;
 };
 
 /*
@@ -604,4 +604,4 @@ CheckBoxTableTree.pt.getSelected = function(sign){
 			&& idArray.push(key);
 	}
 	return idArray;
-}
+};
