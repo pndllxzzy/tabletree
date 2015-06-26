@@ -59,12 +59,12 @@ TableTree.prototype = {
 
 	/*
 	 *@description 初始化TableTree
-	 *@return {undefined}
+	 *@return {object} 对象本身
 	 */
 	"init" : function(){
 		var data = this.initData;
 		if(!data || data.constructor != Array){
-			return false;
+			return this;
 		}
 		this.addDataCache(data, 0);
 		//var table = this.initTable();
@@ -73,6 +73,8 @@ TableTree.prototype = {
 		//this.tableArea.append(table);
 		this.showRoot();
 		this.bindEvent();
+
+        return this;
 	},
 
 	/*
@@ -87,7 +89,7 @@ TableTree.prototype = {
 	 *@description 将数据加工后以id:object的形式存入this.dataCache
 	 *@param data {array} 树形结构的原始数据
 	 *@param n {number} data中第一层数据在所有数据中的层数
-	 *@return {boolean}
+	 *@return {object} 对象本身
 	 */
 	"addDataCache" : function(data, n){
 		var i = 0,
@@ -111,7 +113,7 @@ TableTree.prototype = {
 				this.addDataCache.call(this, _data.children, n + 1);
 			}
     	}
-		return true;
+		return this;
 	},
 
 	/*
@@ -171,7 +173,7 @@ TableTree.prototype = {
 	 *					1.将data加工然后存入dataCache
 	 *					2.生成新数据的html并展示在页面上
 	 *@param data {array} 新增的数据
-	 *@return {undefined}
+	 *@return {object} 对象本身
 	 */
 	"ajaxCallback" : function(data){
 		var _dataCache = this.dataCache,
@@ -188,6 +190,8 @@ TableTree.prototype = {
 		}
 		this.tableEl.find('tr[data-id=' + _selectedId + ']').after(this.getTrHtml.call(this, data));
 		this.toggle(_selectedId);
+
+        return this;
 	},
 
 	/*
@@ -229,7 +233,7 @@ TableTree.prototype = {
 	/*
 	 *@description 将节点设置为非父节点
 	 *@param pid {string} 指定节点的id
-	 *@return {undefined}
+	 *@return {object} 对象本身
 	 */
 	"setNotParent" : function(id){
 		var row = this.dataCache[id];
@@ -242,25 +246,29 @@ TableTree.prototype = {
 		row.isDone = _doneNone;
 		row.isFold = _foldNone;
 		row.isParent = false;
+
+        return this;
 	},
 
 	/*
 	 *@description 展开/收起指定id的节点
 	 *@param pid {string} 指定节点的id
-	 *@return {undefined}
+	 *@return {object} 对象本身
 	 */
 	"toggle" : function(pid){
 		var _foldFlagTrue = this.setting.foldFlag[0],
 			isFold = this.dataCache[pid].isFold !== _foldFlagTrue;
 
 		this.fold(pid, isFold);
+
+        return this;
 	},
 
 	/*
 	 *@description 展开/收起指定id的节点
 	 *@param pid {string} 指定节点的id
 	 *@param flag {boolean} 指示展开还是收起{true : 展开, false : 收起}
-	 *@return {undefined}
+	 *@return {object} 对象本身
 	 */
 	"fold" : function(pid, flag){
 		var _tableEl = this.tableEl,
@@ -294,10 +302,13 @@ TableTree.prototype = {
 				this.fold.call(this, cId, true);
 			}
 		}
+
+        return this;
 	},
 
 	/*
 	 *@description 设置根节点为可见(display:table-row)，默认所有tr为不可见(display:none)
+     *@return {object} 对象本身
 	 */
 	"showRoot" : function(){
 		var _tableEl = this.tableEl,
@@ -310,12 +321,14 @@ TableTree.prototype = {
 				_tableEl.find('tr[data-id=' + row.id + ']').css('display', 'table-row');
 			}
 		}
+
+        return this;
 	},
 
 	/*
 	 *@description 仅移除指定节点(不移除其子节点)
 	 *@param {string} 指定节点的id
-	 *@return {undefined}
+	 *@return {object} 对象本身
 	 */
 	"removeSingle" : function(id){
 		var _dataCache = this.dataCache,
@@ -337,12 +350,14 @@ TableTree.prototype = {
 		if(!_sibling.length){
 			this.setNotParent(_tr.pid);
 		}
+
+        return this;
 	},
 
 	/*
 	 *@description 移除指定节点(包括其子节点)
 	 *@param {string} 指定节点的id
-	 *@return {undefined}
+	 *@return {object} 对象本身
 	 */
 	"remove" : function(id){
 		var _dataCache = this.dataCache,
@@ -354,238 +369,239 @@ TableTree.prototype = {
 			child = _children[i];
 			this.remove.call(this, child.id);
 		}
+
+        return this;
 	}
 };
+
 
 /*
  *@description 生成带checkbox的TableTree(继承于TableTree)
  *@param {object} 生成树所需要的参数
  */
-function CheckBoxTableTree(option){
-	this._inherit(TableTree, option);
+var CheckBoxTableTree = function(option){
+    TableTree.call(this, option);
 	this.setting.checkedFlag = ['t', 'f'];
-}
+};
 
-CheckBoxTableTree.prototype = {
+CheckBoxTableTree.pt = CheckBoxTableTree.prototype = function(o){
+    function F(){}
+    F.prototype = o;
+    return new F();
+}(TableTree.prototype);
 
-	"constructor" : CheckBoxTableTree,
+CheckBoxTableTree.pt.constructor = CheckBoxTableTree;
 
-	/*
-	 *@description 继承指定的function
-	 *@param parent {function} 父类
-	 *@param option {object} 生成树所需要的参数
-	 *@return {undefined}
-	 */
-	"_inherit" : function(parent, option){
-		var pFn = parent.prototype,
-			_fn = this.constructor.prototype;
-		for(key in pFn){
-			!_fn[key] && (_fn[key] = pFn[key]);
+/*
+ *@description 绑定相应事件
+ *@return {undefined}
+ */
+CheckBoxTableTree.pt.bindEvent = function(){
+	this.bindFoldClick();
+	this.bindCheckboxClick();
+};
+
+/*
+ *@description 通过data生成html字符串
+ *@param data {array} 加工后的数据，根据数据中的属性生成tr
+ *@return {string} 生成的html
+ */
+CheckBoxTableTree.pt.getTrHtml = function(data){
+	if(!data || data.constructor != Array){
+			return '';
 		}
-		parent.call(this, option);
-	},
 
-	/*
-	 *@description 绑定相应事件
-	 *@return {undefined}
-	 */
-	"bindEvent" : function(){
-		this.bindFoldClick();
-		this.bindCheckboxClick();
-	},
-
-	/*
-	 *@description 通过data生成html字符串
-	 *@param data {array} 加工后的数据，根据数据中的属性生成tr
-	 *@return {string} 生成的html
-	 */
-	"getTrHtml" : function(data){
-		if(!data || data.constructor != Array){
-				return '';
-			}
-
-			var html = [],
-				_setting = this.setting,
-				paddingLeft = _setting.pdLeftBase * data[0].layer,
-				_thKey = this.thKey,
-				_foldClassTrue = _setting.foldClass[0],
-				_txtClass = _setting.txtClass;
-
-			for(var j = 0, len = data.length; j < len; j++){
-				var row = data[j],
-					cData = row.attr,
-					str = '<tr data-id="' + row.id + '"><td style="padding-left:'
-						+ paddingLeft + 'px;"><span class="'
-						+ (row.isParent ? _foldClassTrue : '') + '"></span><input type="checkbox"/><div class="'
-						+ _txtClass + '">' + (cData.hasOwnProperty(_thKey[0]) ? cData[_thKey[0]] : row[_thKey[0]]) + '</div></td>';
-
-				for(var i = 1, cLen = _thKey.length; i < cLen; i++){
-					str += '<td>' + ((cData.hasOwnProperty(_thKey[i]) ? cData[_thKey[i]] : row[_thKey[i]]) || '') + '</td>';
-				}
-				str += '</tr>';
-				html.push(str);
-				if(row.children.length){
-					html.push(this.getTrHtml.call(this, row.children));
-				}
-			}
-			
-			return html.join('');
-	},
-
-	/*
-	 *@description 将数据加工后以id:object的形式存入this.dataCache
-	 *@param data {array} 树形结构的原始数据
-	 *@param n {number} data中第一层数据在所有数据中的层数
-	 *@return {boolean}
-	 */
-	"addDataCache" : function(data, n){
-		var i = 0,
-			_dataCache = this.dataCache,
+		var html = [],
 			_setting = this.setting,
-			_data,
-			_doneFlag = _setting.doneFlag,
-			_foldFlag = _setting.foldFlag,
-			_checkedFlag = _setting.checkedFlag;
-		
-		i = data.length;
+			paddingLeft = _setting.pdLeftBase * data[0].layer,
+			_thKey = this.thKey,
+			_foldClassTrue = _setting.foldClass[0],
+			_txtClass = _setting.txtClass;
 
-		while(i){
-			_data = data[--i];
-			var hasChildren = !!_data.children.length;
-			_data.isParent = _data.isParent || (this.ajaxURL || hasChildren ? true : false);
-			_data.isDone = _data.isParent ? (hasChildren ? _doneFlag[0] : _doneFlag[1]) : _doneFlag[2];
-			_data.isFold = _data.isParent ? _foldFlag[0] : _foldFlag[2];
-			_data.isChecked = _checkedFlag[1];
-			_data.layer = n;
-			_dataCache[_data.id] = _data;
-			if(hasChildren){
-				_data.isDone = _doneFlag[0];
-				this.addDataCache.call(this, _data.children, n + 1);
+		for(var j = 0, len = data.length; j < len; j++){
+			var row = data[j],
+				cData = row.attr,
+				str = '<tr data-id="' + row.id + '"><td style="padding-left:'
+					+ paddingLeft + 'px;"><span class="'
+					+ (row.isParent ? _foldClassTrue : '') + '"></span><input type="checkbox"/><div class="'
+					+ _txtClass + '">' + (cData.hasOwnProperty(_thKey[0]) ? cData[_thKey[0]] : row[_thKey[0]]) + '</div></td>';
+
+			for(var i = 1, cLen = _thKey.length; i < cLen; i++){
+				str += '<td>' + ((cData.hasOwnProperty(_thKey[i]) ? cData[_thKey[i]] : row[_thKey[i]]) || '') + '</td>';
+			}
+			str += '</tr>';
+			html.push(str);
+			if(row.children.length){
+				html.push(this.getTrHtml.call(this, row.children));
 			}
 		}
-		return true;
-	},
+		
+		return html.join('');
+};
 
-	/*
-	 *@description 绑定checkbox点击事件
-	 *@return {undefined}
-	 */
-	"bindCheckboxClick" : function(){
-		var _this = this;
-		_this.tableEl.on('click', 'tbody input[type=checkbox]', function(){
-			var id = $(this).parent().parent().attr('data-id'),
-				flag = this.checked;
+/*
+ *@description 将数据加工后以id:object的形式存入this.dataCache
+ *@param data {array} 树形结构的原始数据
+ *@param n {number} data中第一层数据在所有数据中的层数
+ *@return {object} 对象本身
+ */
+CheckBoxTableTree.pt.addDataCache = function(data, n){
+	var i = 0,
+		_dataCache = this.dataCache,
+		_setting = this.setting,
+		_data,
+		_doneFlag = _setting.doneFlag,
+		_foldFlag = _setting.foldFlag,
+		_checkedFlag = _setting.checkedFlag;
+	
+	i = data.length;
 
-			_this.select(id, flag);
-		});
-	},
-
-	/*
-	 *@description 仅[取消]选中指定节点的checkbox(不包含其父/子节点)
-	 *@param id {string} 指定节点的id
-	 *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
-	 *@return {undefined}
-	 */
-	"selectSingle" : function(id, flag){
-		var _tableEl = this.tableEl,
-			_dataCache = this.dataCache,
-			_checkedFlag = this.setting.checkedFlag;
-
-		_dataCache[id].isChecked = _checkedFlag[flag ? 0 : 1];
-		_tableEl.find('tr[data-id=' + id + ']').find('input[type=checkbox]')[0].checked = flag;
-	},
-
-	/*
-	 *@description [取消]选中所有节点的checkbox
-	 *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
-	 *@return {undefined}
-	 */
-	"selectAll" : function(flag){
-		var _dataCache = this.dataCache,
-			_tableEl = this.tableEl,
-			_checkedFlag = this.setting.checkedFlag[flag ? 0 : 1];
-		for(key in _dataCache){
-			var row = _dataCache[key];
-			_tableEl.find('tr[data-id=' + row.id + ']').find('input[type=checkbox]')[0].checked = flag;
-			row.isChecked = _checkedFlag;
+	while(i){
+		_data = data[--i];
+		var hasChildren = !!_data.children.length;
+		_data.isParent = _data.isParent || (this.ajaxURL || hasChildren ? true : false);
+		_data.isDone = _data.isParent ? (hasChildren ? _doneFlag[0] : _doneFlag[1]) : _doneFlag[2];
+		_data.isFold = _data.isParent ? _foldFlag[0] : _foldFlag[2];
+		_data.isChecked = _checkedFlag[1];
+		_data.layer = n;
+		_dataCache[_data.id] = _data;
+		if(hasChildren){
+			_data.isDone = _doneFlag[0];
+			this.addDataCache.call(this, _data.children, n + 1);
 		}
-	},
+	}
+	return this;
+};
 
-	/*
-	 *@description [取消]选中指定节点的checkbox(包含其父/子节点)
-	 *@param id {string} 指定节点的id
-	 *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
-	 *@return {undefined}
-	 */
-	"select" : function(id, flag){
-		this.selectParent(id, flag);
-		this.selectChildren(id, flag);
-	},
+/*
+ *@description 绑定checkbox点击事件
+ *@return {undefined}
+ */
+CheckBoxTableTree.pt.bindCheckboxClick = function(){
+	var _this = this;
+	_this.tableEl.on('click', 'tbody input[type=checkbox]', function(){
+		var id = $(this).parent().parent().attr('data-id'),
+			flag = this.checked;
 
-	/*
-	 *@description [取消]选中指定节点的父节点checkbox
-	 *@param id {string} 指定节点的id
-	 *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
-	 *@return {undefined}
-	 */
-	"selectParent" : function(id, flag){
-		var _dataCache = this.dataCache,
-			tr = _dataCache[id],
-			_parent = _dataCache[tr.pid],
-			_checkedFlagTrue = this.setting.checkedFlag[0],
-			_sibling;
+		_this.select(id, flag);
+	});
+};
 
-		this.selectSingle(tr.id, flag);
-		if(_parent){
-			if(!flag){
-				_sibling = _parent.children;
-				for(var i = 0, len = _sibling.length; i < len; i++){
-					if(_sibling[i].isChecked == _checkedFlagTrue){
-						return;
-					}
+/*
+ *@description 仅[取消]选中指定节点的checkbox(不包含其父/子节点)
+ *@param id {string} 指定节点的id
+ *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
+ *@return {object} 对象本身
+ */
+CheckBoxTableTree.pt.selectSingle = function(id, flag){
+	var _tableEl = this.tableEl,
+		_dataCache = this.dataCache,
+		_checkedFlag = this.setting.checkedFlag;
+
+	_dataCache[id].isChecked = _checkedFlag[flag ? 0 : 1];
+	_tableEl.find('tr[data-id=' + id + ']').find('input[type=checkbox]')[0].checked = flag;
+
+    return this;
+};
+
+/*
+ *@description [取消]选中所有节点的checkbox
+ *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
+ *@return {object} 对象本身
+ */
+CheckBoxTableTree.pt.selectAll = function(flag){
+	var _dataCache = this.dataCache,
+		_tableEl = this.tableEl,
+		_checkedFlag = this.setting.checkedFlag[flag ? 0 : 1];
+	for(key in _dataCache){
+		var row = _dataCache[key];
+		_tableEl.find('tr[data-id=' + row.id + ']').find('input[type=checkbox]')[0].checked = flag;
+		row.isChecked = _checkedFlag;
+	}
+
+    return this;
+};
+
+/*
+ *@description [取消]选中指定节点的checkbox(包含其父/子节点)
+ *@param id {string} 指定节点的id
+ *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
+ *@return {object} 对象本身
+ */
+CheckBoxTableTree.pt.select = function(id, flag){
+	this.selectParent(id, flag);
+	this.selectChildren(id, flag);
+
+    return this;
+};
+
+/*
+ *@description [取消]选中指定节点的父节点checkbox
+ *@param id {string} 指定节点的id
+ *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
+ *@return {object} 对象本身
+ */
+CheckBoxTableTree.pt.selectParent = function(id, flag){
+	var _dataCache = this.dataCache,
+		tr = _dataCache[id],
+		_parent = _dataCache[tr.pid],
+		_checkedFlagTrue = this.setting.checkedFlag[0],
+		_sibling;
+
+	this.selectSingle(tr.id, flag);
+	if(_parent){
+		if(!flag){
+			_sibling = _parent.children;
+			for(var i = 0, len = _sibling.length; i < len; i++){
+				if(_sibling[i].isChecked == _checkedFlagTrue){
+					return this;
 				}
 			}
-			this.selectParent.call(this, _parent.id, flag);
 		}
-	},
-
-	/*
-	 *@description [取消]选中指定节点的子节点checkbox
-	 *@param id {string} 指定节点的id
-	 *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
-	 *@return {undefined}
-	 */
-	"selectChildren" : function(id, flag){
-		var _dataCache = this.dataCache,
-			tr = _dataCache[id],
-			_children = tr.children;
-
-		for(var i = 0, len = _children.length, row; i < len; i++){
-			row = _children[i];
-			this.selectSingle(row.id, flag);
-			row.children.length && this.selectChildren.call(this, row.id, flag);
-		}
-	},
-
-	/*
-	 *@description 获取选中节点的id数组
-	 *@param sign {number} 指示只取叶子节点还是全部节点{0/undefined : 全部节点, 1 : 仅叶子节点}
-	 *@return {array} 选中节点的数组
-	 */
-	"getSelected" : function(sign){
-		var sign = sign || 0,
-			idArray = [],
-			_dataCache = this.dataCache,
-			_checkedFlagTrue = this.setting.checkedFlag[0],
-			row;
-		for(key in _dataCache){
-			row = _dataCache[key];
-			if(sign === 1 && row.children.length){
-				continue;
-			}
-			row.isChecked === _checkedFlagTrue
-				&& idArray.push(key);
-		}
-		return idArray;
+		this.selectParent.call(this, _parent.id, flag);
 	}
+
+    return this;
+};
+
+/*
+ *@description [取消]选中指定节点的子节点checkbox
+ *@param id {string} 指定节点的id
+ *@param flag {boolean} 指示选中还是取消 {true : 选中, false : 取消}
+ *@return {object} 对象本身
+ */
+CheckBoxTableTree.pt.selectChildren = function(id, flag){
+	var _dataCache = this.dataCache,
+		tr = _dataCache[id],
+		_children = tr.children;
+
+	for(var i = 0, len = _children.length, row; i < len; i++){
+		row = _children[i];
+		this.selectSingle(row.id, flag);
+		row.children.length && this.selectChildren.call(this, row.id, flag);
+	}
+
+    return this;
+};
+
+/*
+ *@description 获取选中节点的id数组
+ *@param sign {number} 指示只取叶子节点还是全部节点{0/undefined : 全部节点, 1 : 仅叶子节点}
+ *@return {array} 选中节点的数组
+ */
+CheckBoxTableTree.pt.getSelected = function(sign){
+	var sign = sign || 0,
+		idArray = [],
+		_dataCache = this.dataCache,
+		_checkedFlagTrue = this.setting.checkedFlag[0],
+		row;
+	for(key in _dataCache){
+		row = _dataCache[key];
+		if(sign === 1 && row.children.length){
+			continue;
+		}
+		row.isChecked === _checkedFlagTrue
+			&& idArray.push(key);
+	}
+	return idArray;
 }
