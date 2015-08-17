@@ -1,5 +1,5 @@
 /*
-	version 1.0.0
+	version 1.1.0
 	depend on jquery(测试用1.8.3)
 	TableTree
 	CheckBoxTableTree
