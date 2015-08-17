@@ -1,11 +1,8 @@
 /*
 	version 1.0.0
 	depend on jquery(测试用1.8.3)
-
 	TableTree
 	CheckBoxTableTree
-
-
 	data : [{
 		'id': 'id2',
 		'pid': '0',
@@ -246,7 +243,26 @@ TableTree.prototype = {
 		row.isDone = _doneNone;
 		row.isFold = _foldNone;
 		row.isParent = false;
+	},
 
+	"searchById" : function(id){
+		var _thisEl = this.tableEl.find('tr[data-id=' + id + ']');
+		this.unfoldParent(id);
+		var top = _thisEl.addClass('hover').offset().top - 300;
+		$(document.body).scrollTop(Math.max(0, top));
+		return this;
+	},
+
+	"unfoldParent" : function(id){
+		if(this.dataCache[id]) {
+			var _foldFlagTrue = this.setting.foldFlag[0],
+				pid = this.dataCache[id].pid,
+				parent = this.dataCache[pid];
+			if (parent && parent.isFold === _foldFlagTrue) {
+				this.fold(pid, false);
+				this.unfoldParent(parent.pid);
+			}
+		}
 		return this;
 	},
 
