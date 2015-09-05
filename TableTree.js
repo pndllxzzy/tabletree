@@ -32,11 +32,11 @@
 function TableTree(option){
 	this.ajaxURL = option.ajaxURL;
 	this.setting = {
-		'doneFlag' : ['t', 'f', 'n'],
-		'foldFlag' : ['t', 'f', 'n'],
-		'foldClass' : ['tt-fold', 'tt-unfold'],
-		'txtClass' : 'tt-txt',
-		'pdLeftBase' : 16,
+		doneFlag : ['t', 'f', 'n'],
+		foldFlag : ['t', 'f', 'n'],
+		foldClass : ['tt-fold', 'tt-unfold'],
+		txtClass : 'tt-txt',
+		pdLeftBase : 16,
 	};
 	//this.thName = option.thName;
 	this.thKey = option.thKey;
