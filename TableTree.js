@@ -52,7 +52,7 @@ function TableTree(option){
 
 TableTree.prototype = {
 
-	"constructor" : TableTree,
+	constructor : TableTree,
 
 	/*
 	 *@description 初始化TableTree
