@@ -58,7 +58,7 @@ TableTree.prototype = {
 	 *@description 初始化TableTree
 	 *@return {object} 对象本身
 	 */
-	"init" : function(){
+	init : function(){
 		var data = this.initData;
 		if(!data || data.constructor != Array){
 			return this;
