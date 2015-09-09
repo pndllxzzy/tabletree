@@ -148,7 +148,7 @@ TableTree.prototype = {
 			var row = data[j],
 				cData = row.attr,
 				str = '<tr data-id="' + row.id + '"><td style="padding-left:'
-					+ paddingLeft + 'px;"><span class="'
+					+ paddingLeft + 'px;"><span class="fold-btn '
 					+ (row.isParent ? _foldClassTrue : '') + '"></span><div class="'
 					+ _txtClass + '">' + (cData.hasOwnProperty(_thKey[0]) ? cData[_thKey[0]] : row[_thKey[0]]) + '</div></td>';
 
@@ -198,7 +198,7 @@ TableTree.prototype = {
 	"bindFoldClick" : function(){
 		var _this = this;
 
-		_this.tableEl.on('click', 'tbody span', function(){
+		_this.tableEl.on('click', 'tbody .fold-btn', function(){
 			var _span = $(this),
 				id = _span.parent().parent().attr('data-id'),
 				obj = _this.dataCache[id],
@@ -239,7 +239,7 @@ TableTree.prototype = {
 			_doneNone = _setting.doneFlag[2],
 			_foldNone = _setting.foldFlag[2];
 
-		this.tableEl.find('tr[data-id=' + id + '] span').removeClass(_foldClass[0] + ' ' + _foldClass[1]);
+		this.tableEl.find('tr[data-id=' + id + '] .fold-btn').removeClass(_foldClass[0] + ' ' + _foldClass[1]);
 		row.isDone = _doneNone;
 		row.isFold = _foldNone;
 		row.isParent = false;
@@ -308,7 +308,7 @@ TableTree.prototype = {
 			isFold = _foldFlag[1];
 		}
 		_thisRow.isFold = isFold;
-		_tableEl.find('tr[data-id=' + pid + ']').find('span').removeClass(rClass).addClass(aClass);
+		_tableEl.find('tr[data-id=' + pid + ']').find('.fold-btn').removeClass(rClass).addClass(aClass);
 		while(len){
 			cRow = children[--len],
 			cId = cRow.id,
@@ -438,7 +438,7 @@ CheckBoxTableTree.pt.getTrHtml = function(data){
 			var row = data[j],
 				cData = row.attr,
 				str = '<tr data-id="' + row.id + '"><td style="padding-left:'
-					+ paddingLeft + 'px;"><span class="'
+					+ paddingLeft + 'px;"><span class="fold-btn '
 					+ (row.isParent ? _foldClassTrue : '') + '"></span><input type="checkbox"/><div class="'
 					+ _txtClass + '">' + (cData.hasOwnProperty(_thKey[0]) ? cData[_thKey[0]] : row[_thKey[0]]) + '</div></td>';
 
