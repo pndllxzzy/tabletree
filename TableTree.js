@@ -78,7 +78,7 @@ TableTree.prototype = {
 	 *@description 绑定相应事件
 	 *@return {undefined}
 	 */
-	"bindEvent" : function(){
+	bindEvent : function(){
 		this.bindFoldClick();
 	},
 
@@ -88,7 +88,7 @@ TableTree.prototype = {
 	 *@param n {number} data中第一层数据在所有数据中的层数
 	 *@return {object} 对象本身
 	 */
-	"addDataCache" : function(data, n){
+	addDataCache : function(data, n){
 		var i = 0,
 			_dataCache = this.dataCache,
 			_data,
@@ -116,7 +116,7 @@ TableTree.prototype = {
 	/*
 	 *然而并没有什么×用
 	 */
-	"initTable" : function(){
+	initTable : function(){
 		var html = ['<table><thead><tr>'],
 			_thName = this.thName;
 
@@ -132,7 +132,7 @@ TableTree.prototype = {
 	 *@param data {array} 加工后的数据，根据数据中的属性生成tr
 	 *@return {string} 生成的html
 	 */
-	"getTrHtml" : function(data){
+	getTrHtml : function(data){
 		if(!data || data.constructor != Array){
 			return '';
 		}
@@ -172,7 +172,7 @@ TableTree.prototype = {
 	 *@param data {array} 新增的数据
 	 *@return {object} 对象本身
 	 */
-	"ajaxCallback" : function(data){
+	ajaxCallback : function(data){
 		var _dataCache = this.dataCache,
 			_selectedId = this.selectedId,
 			_selectedRow = this.dataCache[_selectedId],
@@ -195,7 +195,7 @@ TableTree.prototype = {
 	 *@description 绑定展开/收起及节点事件
 	 *@return {undefined}
 	 */
-	"bindFoldClick" : function(){
+	bindFoldClick : function(){
 		var _this = this;
 
 		_this.tableEl.on('click', 'tbody .fold-btn', function(){
@@ -232,7 +232,7 @@ TableTree.prototype = {
 	 *@param pid {string} 指定节点的id
 	 *@return {object} 对象本身
 	 */
-	"setNotParent" : function(id){
+	setNotParent : function(id){
 		var row = this.dataCache[id];
 			_setting = this.setting,
 			_foldClass = _setting.foldClass,
@@ -245,7 +245,7 @@ TableTree.prototype = {
 		row.isParent = false;
 	},
 
-	"searchById" : function(id){
+	searchById : function(id){
 		var _thisEl = this.tableEl.find('tr[data-id=' + id + ']');
 		this.unfoldParent(id);
 		var top = _thisEl.addClass('hover').offset().top - 300;
@@ -253,7 +253,7 @@ TableTree.prototype = {
 		return this;
 	},
 
-	"unfoldParent" : function(id){
+	unfoldParent : function(id){
 		if(this.dataCache[id]) {
 			var _foldFlagTrue = this.setting.foldFlag[0],
 				pid = this.dataCache[id].pid,
@@ -271,7 +271,7 @@ TableTree.prototype = {
 	 *@param pid {string} 指定节点的id
 	 *@return {object} 对象本身
 	 */
-	"toggle" : function(pid){
+	toggle : function(pid){
 		var _foldFlagTrue = this.setting.foldFlag[0],
 			isFold = this.dataCache[pid].isFold !== _foldFlagTrue;
 
@@ -286,7 +286,7 @@ TableTree.prototype = {
 	 *@param flag {boolean} 指示展开还是收起{true : 展开, false : 收起}
 	 *@return {object} 对象本身
 	 */
-	"fold" : function(pid, flag){
+	fold : function(pid, flag){
 		var _tableEl = this.tableEl,
 			_thisRow = this.dataCache[pid],
 			_foldFlag = this.setting.foldFlag,
@@ -326,7 +326,7 @@ TableTree.prototype = {
 	 *@description 设置根节点为可见(display:table-row)，默认所有tr为不可见(display:none)
      *@return {object} 对象本身
 	 */
-	"showRoot" : function(){
+	showRoot : function(){
 		var _tableEl = this.tableEl,
 			_dataCache = this.dataCache,
 			row;
@@ -346,7 +346,7 @@ TableTree.prototype = {
 	 *@param {string} 指定节点的id
 	 *@return {object} 对象本身
 	 */
-	"removeSingle" : function(id){
+	removeSingle : function(id){
 		var _dataCache = this.dataCache,
 			_tr = _dataCache[id],
 			_parent = _dataCache[_tr.pid],
@@ -375,7 +375,7 @@ TableTree.prototype = {
 	 *@param {string} 指定节点的id
 	 *@return {object} 对象本身
 	 */
-	"remove" : function(id){
+	remove : function(id){
 		var _dataCache = this.dataCache,
 			_tr = _dataCache[id],
 			_children = _tr.children;
